@@ -25,12 +25,6 @@ const S = {
     boxShadow: 'var(--shadow-lg)',
     animation: 'fadeUp 0.3s ease',
   },
-  logo: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: 10,
-    marginBottom: 28,
-  },
   logoIcon: {
     width: 40,
     height: 40,
@@ -162,12 +156,6 @@ const S = {
     fontFamily: 'inherit',
     textDecoration: 'underline',
   },
-  langBar: {
-    display: 'flex',
-    justifyContent: 'flex-end',
-    gap: 4,
-    marginBottom: 20,
-  },
   langBtn: (active) => ({
     padding: '4px 10px',
     borderRadius: 6,
@@ -233,23 +221,23 @@ export default function Login() {
     <div style={S.page}>
       <div style={S.card}>
 
-        {/* Language switcher */}
-        <div style={S.langBar}>
-          {LOCALES.map(({ code, label }) => (
-            <button key={code} style={S.langBtn(locale === code)} onClick={() => setLocale(code)}>
-              {label}
-            </button>
-          ))}
-        </div>
-
-        {/* Logo */}
-        <div style={S.logo}>
-          <div style={S.logoIcon}>
-            <Ico name="building" size={20} color="#fff" />
+        {/* Logo + Language on same row */}
+        <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:28 }}>
+          <div style={{ display:'flex', alignItems:'center', gap:10 }}>
+            <div style={S.logoIcon}>
+              <Ico name="building" size={20} color="#fff" />
+            </div>
+            <div>
+              <div style={S.logoText}>Aiello</div>
+              <div style={S.logoSub}>{t('login.title')}</div>
+            </div>
           </div>
-          <div>
-            <div style={S.logoText}>Aiello</div>
-            <div style={S.logoSub}>{t('login.title')}</div>
+          <div style={{ display:'flex', gap:4 }}>
+            {LOCALES.map(({ code, label }) => (
+              <button key={code} style={S.langBtn(locale === code)} onClick={() => setLocale(code)}>
+                {label}
+              </button>
+            ))}
           </div>
         </div>
 
