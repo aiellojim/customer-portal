@@ -1,7 +1,7 @@
 // src/pages/Login.jsx
 import { useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { CUSTOMER_AUTH_URL } from '../lib/supabase.js';
+import { supabase, CUSTOMER_AUTH_URL } from '../lib/supabase.js';
 import { useI18n, LOCALES } from '../lib/i18n.jsx';
 import Ico from '../components/Ico.jsx';
 
@@ -170,6 +170,10 @@ const S = {
   }),
 };
 
+// ── DEV credentials（測試完移除）────────────────────────────
+const DEV_EMAIL    = '9940701@gmail.com';  // ← 改成你在 Supabase Auth 建立的測試帳號
+const DEV_PASSWORD = 'test1234';            // ← 對應密碼
+
 // ── Component ─────────────────────────────────────────────────
 export default function Login() {
   const { t, locale, setLocale } = useI18n();
@@ -206,6 +210,16 @@ export default function Login() {
     } catch {
       setStatus('error_generic');
     }
+  };
+
+  // ── DEV: 直接用 email+password 登入，繞過 Magic Link ────────
+  const handleDevLogin = async () => {
+    const { error } = await supabase.auth.signInWithPassword({
+      email:    DEV_EMAIL,
+      password: DEV_PASSWORD,
+    });
+    if (error) { alert(`Dev login failed: ${error.message}`); return; }
+    navigate('/dashboard');
   };
 
   const handleKey = (e) => {
@@ -318,6 +332,16 @@ export default function Login() {
                   {t('login.submit')}
                 </>
               )}
+            </button>
+
+            {/* ── DEV ONLY：測試完移除 ── */}
+            <button onClick={handleDevLogin}
+              style={{ marginTop:10, width:'100%', padding:'9px 0', background:'none',
+                border:'1px dashed var(--border-mid)', borderRadius:10, color:'var(--text-subtle)',
+                fontSize:12, cursor:'pointer', fontFamily:'inherit',
+                display:'flex', alignItems:'center', justifyContent:'center', gap:6 }}>
+              <Ico name="lock" size={12} color="currentColor"/>
+              [Dev] 直接登入（測試用）
             </button>
           </>
         )}
