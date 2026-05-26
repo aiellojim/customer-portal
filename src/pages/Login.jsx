@@ -219,7 +219,7 @@ export default function Login() {
       password: DEV_PASSWORD,
     });
     if (error) { alert(`Dev login failed: ${error.message}`); return; }
-    navigate('/dashboard');
+    window.location.href = '/dashboard';
   };
 
   const handleKey = (e) => {
