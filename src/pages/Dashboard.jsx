@@ -4,6 +4,10 @@
 import { useEffect, useState, useCallback, useRef, useMemo } from 'react';
 import { useNavigate }       from 'react-router-dom';
 import { supabase, CUSTOMER_CHECK_URL } from '../lib/supabase.js';
+
+// ── DEV（測試完移除）─────────────────────────────────────────
+const DEV_EMAIL    = '9940701@gmail.com';
+const DEV_PASSWORD = 'test1234';
 import { useI18n, LOCALES } from '../lib/i18n.jsx';
 import Ico                  from '../components/Ico.jsx';
 
@@ -22,9 +26,36 @@ const BATCH2_ITEMS = ['機台 Showcase 設定','廣告設定','Pop-up QR code �
 const GW_ITEM      = 'GuestWeb 內容建置';
 
 const PRODUCT_COLORS = {
-  AVA:'#1e6fb5', AVT:'#0891b2', ACA:'#0e7a5a',
-  TMSP:'#7c3aed', GW:'#b45309', KMS:'#be185d',
+  AVA:'var(--prod-ava)', AVT:'var(--prod-avt)', ACA:'var(--prod-aca)',
+  TMSP:'var(--prod-tmsp)', GW:'var(--prod-gw)', KMS:'var(--prod-kms)',
 };
+
+// ── ThemeToggle ───────────────────────────────────────────────
+const THEME_OPTIONS = [
+  { value:'light',  label:'普通', icoName:'sun'     },
+  { value:'dark',   label:'深色', icoName:'moon'    },
+  { value:'system', label:'系統', icoName:'monitor' },
+];
+const ThemeToggle = ({ theme, setTheme }) => (
+  <div style={{ display:'flex', alignItems:'center', background:'var(--surface-raised)',
+    border:'1px solid var(--border)', borderRadius:9, padding:3, gap:2, height:32 }}>
+    {THEME_OPTIONS.map(({ value, label, icoName }) => {
+      const active = theme === value;
+      return (
+        <button key={value} onClick={() => setTheme(value)} title={label}
+          style={{ display:'flex', alignItems:'center', gap:5, padding:'0 9px',
+            height:24, borderRadius:6, border:'none', fontFamily:'inherit', cursor:'pointer',
+            background:active?'var(--surface)':'transparent',
+            color:active?'var(--text)':'var(--text-subtle)',
+            fontSize:11, fontWeight:active?600:400,
+            boxShadow:active?'var(--shadow-sm)':'none', transition:'all 0.12s' }}>
+          <Ico name={icoName} size={12} color="currentColor"/>
+          <span>{label}</span>
+        </button>
+      );
+    })}
+  </div>
+);
 
 const getFlags = (products=[], integrations=[]) => ({
   hasAva:  products.includes('AVA'),
@@ -112,6 +143,13 @@ export default function Dashboard() {
   const { t, locale, setLocale, fmtDate } = useI18n();
   const navigate = useNavigate();
 
+  const [theme, setTheme] = useState(() => localStorage.getItem('cp-theme') || 'system');
+  useEffect(() => {
+    localStorage.setItem('cp-theme', theme);
+    if (theme === 'system') document.documentElement.removeAttribute('data-theme');
+    else document.documentElement.setAttribute('data-theme', theme);
+  }, [theme]);
+
   const [phase,      setPhase]      = useState('init');
   const [project,    setProject]    = useState(null);
   const [progress,   setProgress]   = useState(null);
@@ -168,6 +206,12 @@ export default function Dashboard() {
   }, [navigate]);
 
   const handleLogout = async () => { await supabase.auth.signOut(); navigate('/login'); };
+
+  const handleDevLogin = async () => {
+    const { error } = await supabase.auth.signInWithPassword({ email:DEV_EMAIL, password:DEV_PASSWORD });
+    if (error) { alert(`Dev login failed: ${error.message}`); return; }
+    window.location.reload();
+  };
 
   const showToast = useCallback((msg, ok=true) => {
     setToast({ msg, ok });
@@ -237,6 +281,13 @@ export default function Dashboard() {
   if (phase==='init') return (
     <div style={S.center}>
       <div style={S.spinner}/><div style={{ fontSize:13, color:'var(--text-subtle)' }}>{t('common.loading')}</div>
+      {/* DEV ONLY：測試完移除 */}
+      <button onClick={handleDevLogin}
+        style={{ marginTop:24, fontSize:11, color:'var(--text-subtle)', background:'none',
+          border:'1px dashed var(--border-mid)', borderRadius:8, padding:'5px 14px',
+          cursor:'pointer', fontFamily:'inherit', display:'flex', alignItems:'center', gap:5 }}>
+        <Ico name="lock" size={11} color="currentColor"/> [Dev] 直接登入
+      </button>
     </div>
   );
   if (phase==='error') return (
@@ -275,6 +326,7 @@ export default function Dashboard() {
             </>}
           </div>
           <div style={{ display:'flex', alignItems:'center', gap:8 }}>
+            <ThemeToggle theme={theme} setTheme={setTheme}/>
             <div style={{ display:'flex', gap:3 }}>
               {LOCALES.map(({ code, label }) => (
                 <button key={code} style={S.langBtn(locale===code)} onClick={() => setLocale(code)}>{label}</button>
@@ -321,6 +373,38 @@ export default function Dashboard() {
                     background:PRODUCT_COLORS[p]??'var(--accent)', borderRadius:6, padding:'2px 9px' }}>{p}</span>
                 ))}
               </div>
+              {/* PIC + Address */}
+              {(project?.pic||project?.address) && (
+                <div style={{ display:'flex', flexWrap:'wrap', gap:12, marginTop:9 }}>
+                  {project?.pic && <div style={{ display:'flex', alignItems:'center', gap:5, fontSize:12, color:'var(--text-mid)' }}>
+                    <Ico name="user" size={12} color="var(--text-subtle)"/>{project.pic}
+                  </div>}
+                  {project?.address && <div style={{ display:'flex', alignItems:'center', gap:5, fontSize:12, color:'var(--text-mid)' }}>
+                    <Ico name="pin" size={12} color="var(--text-subtle)"/>{project.address}
+                  </div>}
+                </div>
+              )}
+              {/* Integrations */}
+              {(project?.integrations??[]).length>0 && (
+                <div style={{ display:'flex', flexWrap:'wrap', gap:5, marginTop:7 }}>
+                  {project.integrations.map(intg => (
+                    <span key={intg} style={{ fontSize:11, fontWeight:500, color:'var(--text-mid)',
+                      background:'var(--surface-raised)', border:'1px solid var(--border)',
+                      borderRadius:6, padding:'2px 9px' }}>{intg}</span>
+                  ))}
+                </div>
+              )}
+              {/* AVA 台數 */}
+              {hasAva && (project?.ava_units||project?.ava_spare) && (
+                <div style={{ display:'flex', gap:12, marginTop:7 }}>
+                  {project?.ava_units && <div style={{ fontSize:11, color:'var(--text-subtle)' }}>
+                    裝機 <span style={{ fontFamily:'DM Mono, monospace', fontWeight:600, color:'var(--prod-ava)' }}>{project.ava_units}</span> 台
+                  </div>}
+                  {project?.ava_spare && <div style={{ fontSize:11, color:'var(--text-subtle)' }}>
+                    備品 <span style={{ fontFamily:'DM Mono, monospace', fontWeight:600, color:'var(--prod-ava)' }}>{project.ava_spare}</span> 台
+                  </div>}
+                </div>
+              )}
             </div>
           </div>
 
