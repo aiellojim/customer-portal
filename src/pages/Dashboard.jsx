@@ -5,9 +5,6 @@ import { useEffect, useState, useCallback, useRef, useMemo } from 'react';
 import { useNavigate }       from 'react-router-dom';
 import { supabase, CUSTOMER_CHECK_URL } from '../lib/supabase.js';
 
-// ── DEV（測試完移除）─────────────────────────────────────────
-const DEV_EMAIL    = '9940701@gmail.com';
-const DEV_PASSWORD = 'test1234';
 import { useI18n, LOCALES } from '../lib/i18n.jsx';
 import Ico                  from '../components/Ico.jsx';
 
@@ -186,7 +183,7 @@ export default function Dashboard() {
         // 2. 驗證這個 email 確實有該 hotel_id 的權限（安全檢查）
         // 3. 若驗證失敗或沒有 sessionStorage，fallback 到 customer_access 第一筆
         const storedHotelId = sessionStorage.getItem('cp-hotel-id');
-        let hotelId: string | null = null;
+        let hotelId = null;
 
         if (storedHotelId) {
           const { data: verifyRows } = await supabase
@@ -235,12 +232,6 @@ export default function Dashboard() {
   }, [navigate]);
 
   const handleLogout = async () => { await supabase.auth.signOut(); navigate('/login'); };
-
-  const handleDevLogin = async () => {
-    const { error } = await supabase.auth.signInWithPassword({ email:DEV_EMAIL, password:DEV_PASSWORD });
-    if (error) { alert(`Dev login failed: ${error.message}`); return; }
-    window.location.reload();
-  };
 
   const showToast = useCallback((msg, ok=true) => {
     setToast({ msg, ok });
@@ -310,13 +301,7 @@ export default function Dashboard() {
   if (phase==='init') return (
     <div style={S.center}>
       <div style={S.spinner}/><div style={{ fontSize:13, color:'var(--text-subtle)' }}>{t('common.loading')}</div>
-      {/* DEV ONLY：測試完移除 */}
-      <button onClick={handleDevLogin}
-        style={{ marginTop:24, fontSize:11, color:'var(--text-subtle)', background:'none',
-          border:'1px dashed var(--border-mid)', borderRadius:8, padding:'5px 14px',
-          cursor:'pointer', fontFamily:'inherit', display:'flex', alignItems:'center', gap:5 }}>
-        <Ico name="lock" size={11} color="currentColor"/> [Dev] 直接登入
-      </button>
+
     </div>
   );
   if (phase==='error') return (
