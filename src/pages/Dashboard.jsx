@@ -95,7 +95,6 @@ const CheckRow = ({ label, checked, onToggle, saving }) => (
     cursor:saving?'wait':'pointer', marginBottom:6, transition:'all 0.15s', opacity:saving?0.6:1,
     background:checked?'var(--green-light)':'var(--surface-raised)',
     border:`1.5px solid ${checked?'rgba(5,150,105,0.3)':'var(--border)'}`,
-    borderLeft:checked?'1.5px solid rgba(5,150,105,0.3)':'4px solid var(--border-mid)',
   }}>
     <div style={{ width:20, height:20, borderRadius:6, flexShrink:0, transition:'all 0.15s',
       border:`2px solid ${checked?'var(--green)':'var(--border-mid)'}`,
