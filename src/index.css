@@ -2,7 +2,7 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 /* ── Google Fonts ───────────────────────────────────────────── */
-@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Inter:wght@400;500;600;700&family=Noto+Sans+TC:wght@300;400;500;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Inter:wght@400;500;600;700&family=Noto+Sans+JP:wght@300;400;500;700&family=Noto+Sans+TC:wght@300;400;500;700&display=swap');
 
 /* ── Design tokens: light (default) ─────────────────────────── */
 :root {
@@ -118,6 +118,10 @@ body {
 }
 :lang(zh), :lang(zh-TW) {
   font-family: 'Noto Sans TC', 'Inter', sans-serif;
+  font-weight: 300;
+}
+:lang(ja) {
+  font-family: 'Noto Sans JP', 'Inter', sans-serif;
   font-weight: 300;
 }
 

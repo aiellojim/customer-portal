@@ -19,7 +19,7 @@ const S = {
     background: 'var(--surface)',
     border: '1px solid var(--border)',
     borderRadius: 20,
-    padding: '40px 36px',
+    padding: 'clamp(24px, 6vw, 40px) clamp(18px, 6vw, 36px)',
     width: '100%',
     maxWidth: 420,
     boxShadow: 'var(--shadow-lg)',

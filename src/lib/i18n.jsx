@@ -2,13 +2,14 @@
 import { createContext, useContext, useState, useCallback } from 'react';
 import zhTW from '../locales/zh-TW.js';
 import en   from '../locales/en.js';
+import ja   from '../locales/ja.js';
 
-const PACKS = { 'zh-TW': zhTW, en };
+const PACKS = { 'zh-TW': zhTW, en, ja };
 
 export const LOCALES = [
   { code: 'zh-TW', label: '繁中' },
   { code: 'en',    label: 'EN'   },
-  // { code: 'ja', label: '日本語' },  ← Phase 6 補上
+  { code: 'ja',    label: '日本語' },
 ];
 
 // 從 localStorage / navigator.language 取預設語系

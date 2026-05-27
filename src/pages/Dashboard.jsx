@@ -140,6 +140,13 @@ export default function Dashboard() {
   const { t, locale, setLocale, fmtDate } = useI18n();
   const navigate = useNavigate();
 
+  const [isMobile, setIsMobile] = useState(() => window.innerWidth < 640);
+  useEffect(() => {
+    const handler = () => setIsMobile(window.innerWidth < 640);
+    window.addEventListener('resize', handler);
+    return () => window.removeEventListener('resize', handler);
+  }, []);
+
   const [theme, setTheme] = useState(() => localStorage.getItem('cp-theme') || 'system');
   useEffect(() => {
     localStorage.setItem('cp-theme', theme);
@@ -339,8 +346,8 @@ export default function Dashboard() {
               </span>
             </>}
           </div>
-          <div style={{ display:'flex', alignItems:'center', gap:8 }}>
-            <ThemeToggle theme={theme} setTheme={setTheme}/>
+          <div style={{ display:'flex', alignItems:'center', gap:isMobile?5:8 }}>
+            {!isMobile && <ThemeToggle theme={theme} setTheme={setTheme}/>}
             <div style={{ display:'flex', gap:3 }}>
               {LOCALES.map(({ code, label }) => (
                 <button key={code} style={S.langBtn(locale===code)} onClick={() => setLocale(code)}>{label}</button>
@@ -350,7 +357,7 @@ export default function Dashboard() {
               onMouseEnter={e=>{ e.currentTarget.style.borderColor='var(--red)'; e.currentTarget.style.color='var(--red)'; }}
               onMouseLeave={e=>{ e.currentTarget.style.borderColor='var(--border)'; e.currentTarget.style.color='var(--text-subtle)'; }}>
               <Ico name="logout" size={13} color="currentColor"/>
-              <span style={{ fontSize:12 }}>{t('common.logout')}</span>
+              {!isMobile && <span style={{ fontSize:12 }}>{t('common.logout')}</span>}
             </button>
           </div>
         </div>
@@ -365,7 +372,7 @@ export default function Dashboard() {
       )}
 
       {/* Content */}
-      <main style={{ maxWidth:760, margin:'0 auto', padding:'28px 20px 80px' }}>
+      <main style={{ maxWidth:760, margin:'0 auto', padding:isMobile?'20px 14px 60px':'28px 20px 80px' }}>
 
         {/* Overview */}
         <Card style={{ animation:'fadeUp 0.3s ease' }}>
