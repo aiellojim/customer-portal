@@ -163,25 +163,54 @@ export default function Dashboard() {
   // ── Init ──────────────────────────────────────────────────
   useEffect(() => {
     (async () => {
-      const code = new URLSearchParams(window.location.search).get('code');
+      // ── hotel_id 優先從 URL 參數讀取（Magic Link 帶入）────────
+      const searchParams = new URLSearchParams(window.location.search);
+      const hotelIdFromUrl = searchParams.get('hotel_id');
+      if (hotelIdFromUrl) sessionStorage.setItem('cp-hotel-id', hotelIdFromUrl);
+
+      // ── PKCE exchange ────────────────────────────────────────
+      const code = searchParams.get('code');
       if (code) {
         const { error } = await supabase.auth.exchangeCodeForSession(window.location.href);
         if (error) { navigate('/login?error=invalid_link'); return; }
         window.history.replaceState({}, '', '/dashboard');
       }
+
       const { data:{ session } } = await supabase.auth.getSession();
       if (!session) { navigate('/login'); return; }
       sessionRef.current = session;
 
       try {
-        const { data:access } = await supabase
-          .from('customer_access').select('hotel_id')
-          .eq('email', session.user.email).maybeSingle();
-        if (!access) { navigate('/login'); return; }
+        // ── hotel_id 決定邏輯 ────────────────────────────────────
+        // 1. 優先用 sessionStorage 的值（Login 輸入 / Magic Link URL 帶入）
+        // 2. 驗證這個 email 確實有該 hotel_id 的權限（安全檢查）
+        // 3. 若驗證失敗或沒有 sessionStorage，fallback 到 customer_access 第一筆
+        const storedHotelId = sessionStorage.getItem('cp-hotel-id');
+        let hotelId: string | null = null;
+
+        if (storedHotelId) {
+          const { data: verifyRows } = await supabase
+            .from('customer_access').select('hotel_id')
+            .eq('email', session.user.email)
+            .eq('hotel_id', storedHotelId)
+            .limit(1);
+          if (verifyRows?.[0]) hotelId = storedHotelId;
+        }
+
+        if (!hotelId) {
+          // Fallback：取這個 email 的第一筆授權
+          const { data: fallbackRows } = await supabase
+            .from('customer_access').select('hotel_id')
+            .eq('email', session.user.email)
+            .limit(1);
+          hotelId = fallbackRows?.[0]?.hotel_id ?? null;
+        }
+
+        if (!hotelId) { setPhase('no_project'); return; }
 
         const { data:proj } = await supabase
           .from('projects').select('*')
-          .eq('hotel_id', access.hotel_id).maybeSingle();
+          .eq('hotel_id', hotelId).maybeSingle();
         if (!proj) { setPhase('no_project'); return; }
 
         const { data:prog } = await supabase

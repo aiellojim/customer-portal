@@ -1,5 +1,5 @@
 // src/pages/Login.jsx
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { supabase, CUSTOMER_AUTH_URL } from '../lib/supabase.js';
 import { useI18n, LOCALES } from '../lib/i18n.jsx';
@@ -187,6 +187,13 @@ export default function Login() {
   );
   // status: 'idle' | 'submitting' | 'sent' | 'error_invalid' | 'error_generic' | 'expired'
 
+  // 已登入就直接進 dashboard，避免迴圈
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session) window.location.href = '/dashboard';
+    });
+  }, []);
+
   const canSubmit = email.trim() && hotelId.trim() && status !== 'submitting';
 
   const handleSubmit = async () => {
@@ -206,6 +213,7 @@ export default function Login() {
       if (res.status === 403) { setStatus('error_invalid'); return; }
       if (!res.ok)             { setStatus('error_generic'); return; }
 
+      sessionStorage.setItem('cp-hotel-id', hotelId.trim());
       setStatus('sent');
     } catch {
       setStatus('error_generic');
@@ -219,6 +227,7 @@ export default function Login() {
       password: DEV_PASSWORD,
     });
     if (error) { alert(`Dev login failed: ${error.message}`); return; }
+    if (hotelId.trim()) sessionStorage.setItem('cp-hotel-id', hotelId.trim());
     window.location.href = '/dashboard';
   };
 
