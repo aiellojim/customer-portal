@@ -170,10 +170,6 @@ const S = {
   }),
 };
 
-// ── DEV credentials（測試完移除）────────────────────────────
-const DEV_EMAIL    = '9940701@gmail.com';  // ← 改成你在 Supabase Auth 建立的測試帳號
-const DEV_PASSWORD = 'test1234';            // ← 對應密碼
-
 // ── Component ─────────────────────────────────────────────────
 export default function Login() {
   const { t, locale, setLocale } = useI18n();
@@ -218,17 +214,6 @@ export default function Login() {
     } catch {
       setStatus('error_generic');
     }
-  };
-
-  // ── DEV: 直接用 email+password 登入，繞過 Magic Link ────────
-  const handleDevLogin = async () => {
-    const { error } = await supabase.auth.signInWithPassword({
-      email:    DEV_EMAIL,
-      password: DEV_PASSWORD,
-    });
-    if (error) { alert(`Dev login failed: ${error.message}`); return; }
-    if (hotelId.trim()) sessionStorage.setItem('cp-hotel-id', hotelId.trim());
-    window.location.href = '/dashboard';
   };
 
   const handleKey = (e) => {
@@ -343,15 +328,6 @@ export default function Login() {
               )}
             </button>
 
-            {/* ── DEV ONLY：測試完移除 ── */}
-            <button onClick={handleDevLogin}
-              style={{ marginTop:10, width:'100%', padding:'9px 0', background:'none',
-                border:'1px dashed var(--border-mid)', borderRadius:10, color:'var(--text-subtle)',
-                fontSize:12, cursor:'pointer', fontFamily:'inherit',
-                display:'flex', alignItems:'center', justifyContent:'center', gap:6 }}>
-              <Ico name="lock" size={12} color="currentColor"/>
-              [Dev] 直接登入（測試用）
-            </button>
           </>
         )}
       </div>
