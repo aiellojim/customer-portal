@@ -56,6 +56,7 @@ const ThemeToggle = ({ theme, setTheme }) => (
 
 const getFlags = (products=[], integrations=[]) => ({
   hasAva:  products.includes('AVA'),
+  hasAvt:  products.includes('AVT'),
   hasAca:  products.includes('ACA'),
   hasGw:   products.includes('GW'),
   hasIptv: integrations.includes('IPTV'),
@@ -279,7 +280,7 @@ export default function Dashboard() {
   }, [project, progress, savingKeys, t, showToast]);
 
   // ── Derived ───────────────────────────────────────────────
-  const { hasAva, hasAca, hasGw, hasIptv } = useMemo(
+  const { hasAva, hasAvt, hasAca, hasGw, hasIptv } = useMemo(
     () => project ? getFlags(project.products??[], project.integrations??[]) : getFlags(),
     [project]
   );
@@ -423,6 +424,14 @@ export default function Dashboard() {
                   {project?.ava_spare && <div style={{ fontSize:11, color:'var(--text-subtle)' }}>
                     備品 <span style={{ fontFamily:'DM Mono, monospace', fontWeight:600, color:'var(--prod-ava)' }}>{project.ava_spare}</span> 台
                   </div>}
+                </div>
+              )}
+              {/* AVT 台數 */}
+              {hasAvt && project?.avt_units && (
+                <div style={{ display:'flex', gap:12, marginTop:4 }}>
+                  <div style={{ fontSize:11, color:'var(--text-subtle)' }}>
+                    AVT 裝機 <span style={{ fontFamily:'DM Mono, monospace', fontWeight:600, color:'var(--prod-avt)' }}>{project.avt_units}</span> 台
+                  </div>
                 </div>
               )}
             </div>
