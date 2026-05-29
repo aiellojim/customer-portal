@@ -546,7 +546,6 @@ export default function Dashboard() {
                 { key:'showcase', label:'Showcase' },
                 { key:'ad',       label:'廣告' },
                 { key:'popupQR',  label:'Pop-up QR' },
-                { key:'guestWeb', label:'GuestWeb' },
               ].filter(l => progress?.sheet_links?.[l.key]);
               return links.length > 0 ? (
                 <div style={{ display:'flex', flexWrap:'wrap', gap:12, marginTop:8, marginBottom:8 }}>
@@ -567,7 +566,7 @@ export default function Dashboard() {
             {hasGw && progress?.sheet_links?.guestWeb && (
               <a href={progress.sheet_links.guestWeb} target="_blank" rel="noreferrer"
                 style={{ display:'inline-flex', alignItems:'center', gap:4, marginTop:8,
-                  fontSize:12, color:'var(--accent)', textDecoration:'none', fontWeight:600 }}>↗ GuestWeb 連結</a>
+                  fontSize:12, color:'var(--accent)', textDecoration:'none', fontWeight:600 }}>↗ GuestWeb</a>
             )}
           </Card>
         )}
