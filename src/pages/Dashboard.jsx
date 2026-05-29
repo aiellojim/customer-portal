@@ -228,7 +228,7 @@ export default function Dashboard() {
           .order('created_at', { ascending:true });
 
         setProject(proj);
-        setProgress({ basic_checked:prog?.basic_checked??{}, faq_checked:prog?.faq_checked??{}, batch2_checked:prog?.batch2_checked??{} });
+        setProgress({ basic_checked:prog?.basic_checked??{}, faq_checked:prog?.faq_checked??{}, batch2_checked:prog?.batch2_checked??{}, sheet_links:prog?.sheet_links??{} });
         setTasks(taskRows ?? []);
         setPhase('ready');
       } catch(e) {
@@ -477,7 +477,7 @@ export default function Dashboard() {
             </div>
             {hasAva && <>
               <SectionHeader title={t('section.basic')} checked={counts.basic} total={BASIC_ITEMS.length} color="var(--green)"/>
-              <div style={{ marginBottom:20 }}>
+              <div style={{ marginBottom: progress?.sheet_links?.basic ? 8 : 20 }}>
                 {BASIC_ITEMS.map(item => (
                   <CheckRow key={item} label={item}
                     checked={!!(progress?.basic_checked?.[item])}
@@ -485,6 +485,11 @@ export default function Dashboard() {
                     onToggle={() => handleToggle('basic', item, 'basic_checked')}/>
                 ))}
               </div>
+              {progress?.sheet_links?.basic && (
+                <a href={progress.sheet_links.basic} target="_blank" rel="noreferrer"
+                  style={{ display:'inline-flex', alignItems:'center', gap:4, marginBottom:20,
+                    fontSize:12, color:'var(--accent)', textDecoration:'none', fontWeight:600 }}>↗ 開啟連結</a>
+              )}
             </>}
             {hasAca && <>
               <SectionHeader title={t('section.aca')} checked={counts.aca} total={1} color="var(--green)"/>
@@ -503,6 +508,11 @@ export default function Dashboard() {
                   saving={savingKeys.has(`faq:${item}`)}
                   onToggle={() => handleToggle('faq', item, 'faq_checked')}/>
               ))}
+              {progress?.sheet_links?.faq && (
+                <a href={progress.sheet_links.faq} target="_blank" rel="noreferrer"
+                  style={{ display:'inline-flex', alignItems:'center', gap:4, marginTop:8,
+                    fontSize:12, color:'var(--accent)', textDecoration:'none', fontWeight:600 }}>↗ 開啟連結</a>
+              )}
             </>}
           </Card>
         )}
@@ -531,11 +541,33 @@ export default function Dashboard() {
                 saving={savingKeys.has(`batch2:${item}`)}
                 onToggle={() => handleToggle('batch2', item, 'batch2_checked')}/>
             ))}
+            {hasAva && (() => {
+              const links = [
+                { key:'showcase', label:'Showcase' },
+                { key:'ad',       label:'廣告' },
+                { key:'popupQR',  label:'Pop-up QR' },
+                { key:'guestWeb', label:'GuestWeb' },
+              ].filter(l => progress?.sheet_links?.[l.key]);
+              return links.length > 0 ? (
+                <div style={{ display:'flex', flexWrap:'wrap', gap:12, marginTop:8, marginBottom:8 }}>
+                  {links.map(l => (
+                    <a key={l.key} href={progress.sheet_links[l.key]} target="_blank" rel="noreferrer"
+                      style={{ display:'inline-flex', alignItems:'center', gap:4,
+                        fontSize:12, color:'var(--accent)', textDecoration:'none', fontWeight:600 }}>↗ {l.label}</a>
+                  ))}
+                </div>
+              ) : null;
+            })()}
             {hasGw && (
               <CheckRow label={GW_ITEM}
                 checked={!!(progress?.batch2_checked?.[GW_ITEM])}
                 saving={savingKeys.has(`batch2:${GW_ITEM}`)}
                 onToggle={() => handleToggle('batch2', GW_ITEM, 'batch2_checked')}/>
+            )}
+            {hasGw && progress?.sheet_links?.guestWeb && (
+              <a href={progress.sheet_links.guestWeb} target="_blank" rel="noreferrer"
+                style={{ display:'inline-flex', alignItems:'center', gap:4, marginTop:8,
+                  fontSize:12, color:'var(--accent)', textDecoration:'none', fontWeight:600 }}>↗ GuestWeb 連結</a>
             )}
           </Card>
         )}
